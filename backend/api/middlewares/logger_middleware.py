@@ -2,7 +2,7 @@ from collections.abc import Callable
 from typing import Any
 from fastapi import Request, Response
 import time
-from loguru import logger
+from backend.utils.logging import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
@@ -52,7 +52,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
                 f"Error Processing Request: {method} | URL: {url} | Client: {client}"
                 f"Error: {e}"
             )
-            raise
+            raise ValueError("Error in processing request")
         
 
 
