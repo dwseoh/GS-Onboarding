@@ -1,8 +1,16 @@
 from collections.abc import Callable
 from typing import Any
 from fastapi import Request, Response
+import time
+import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 class LoggerMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -18,5 +26,37 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         :return: Response from endpoint
         """
         # TODO:(Member) Finish implementing this method
-        response = await call_next(request)
-        return response
+
+        start_time = time.time()
+
+        # get request details
+        method = request.method
+        url = str(request.url)
+        if request.client:
+            client = request.client.host
+        else:
+            client = "Unknown"
+
+        logger.info(f"Incoming Request | Method: {method} | URL: {url} | Client: {client}")
+
+        try:
+            response = await call_next(request)
+
+            process_time = (time.time() - start_time) * 1000  # in ms
+
+            logger.info(
+                f"Outgoing Response | Status: {response.status_code} | "
+                f"Processing Time: {process_time:.3f}s | "
+                f"Method: {method} | URL: {url}"
+            )
+            
+            return response
+
+        except Exception as e:
+            logger.error(
+                f"Error Processing Request: {method} | URL: {url} | Client: {client}"
+                f"Error: {e}"
+            )
+        
+
+

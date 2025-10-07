@@ -11,10 +11,12 @@ def test_get_commands(fastapi_test_client: TestClient, commands_json):
         assert res.json() == {"data": commands_json} 
 
 
-def test_create_command(fastapi_test_client: TestClient): 
+def test_create_command(fastapi_test_client: TestClient,mock_db): 
+
     command = CommandRequest(command_type=1, params="123456789")
     model_dump = command.model_dump()
     with fastapi_test_client as client:
+
         res = client.post("/commands/", json=model_dump, headers={"Content-Type": "application/json"})
         assert res.status_code == 200
         result = res.json().get("data")
