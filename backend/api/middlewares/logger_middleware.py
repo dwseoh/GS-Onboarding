@@ -2,15 +2,10 @@ from collections.abc import Callable
 from typing import Any
 from fastapi import Request, Response
 import time
-import logging
+from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 
-logger = logging.getLogger(__name__)
 
 class LoggerMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -46,7 +41,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
 
             logger.info(
                 f"Outgoing Response | Status: {response.status_code} | "
-                f"Processing Time: {process_time:.3f}s | "
+                f"Processing Time: {process_time:.3f}ms | "
                 f"Method: {method} | URL: {url}"
             )
             
@@ -57,6 +52,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
                 f"Error Processing Request: {method} | URL: {url} | Client: {client}"
                 f"Error: {e}"
             )
+            raise
         
 
 
